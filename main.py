@@ -25,11 +25,11 @@ class login(QMainWindow):
         self.Accountlabel.move(25, 60)
         self.Accountedit = QLineEdit(self)
         self.Accountedit.move(115, 60)
-        #---------------- enter prevate key ---------------------------#
-        self.PrevateKeylabel = QLabel('PrevateKey:', self)
-        self.PrevateKeylabel.move(25, 110)
-        self.PrevateKeyedit = QLineEdit(self)
-        self.PrevateKeyedit.move(115, 110)
+        #---------------- enter private key ---------------------------#
+        self.PrivateKeylabel = QLabel('PrivateKey:', self)
+        self.PrivateKeylabel.move(25, 110)
+        self.PrivateKeyedit = QLineEdit(self)
+        self.PrivateKeyedit.move(115, 110)
         #------------------- login button -----------------------------#
         self.loginbutton = QPushButton('Login',self)
         self.loginbutton.move(130, 160)
@@ -61,11 +61,11 @@ class RegisterPage(QMainWindow):
         self.SetAccountlabel.move(25, 10)
         self.SetAccountedit = QLineEdit(self)
         self.SetAccountedit.move(130, 10)
-        #-------------------Set prevate key ----------------------#
-        self.SetPrevateKeylabel = QLabel('Set PrevateKey:', self)
-        self.SetPrevateKeylabel.move(25, 60)
-        self.SetPrevateKeyedit = QLineEdit(self)
-        self.SetPrevateKeyedit.move(130, 60)        
+        #-------------------Set private key ----------------------#
+        self.SetPrivateKeylabel = QLabel('Set PrivateKey:', self)
+        self.SetPrivateKeylabel.move(25, 60)
+        self.SetPrivateKeyedit = QLineEdit(self)
+        self.SetPrivateKeyedit.move(130, 60)        
         #-------------------Create account ----------------------#
         self.registerbutton = QPushButton('Create',self)
         self.registerbutton.move(130, 110)
@@ -80,7 +80,22 @@ class HomePage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('RememberKey')
         self.setGeometry(500, 200, 500, 500)
-
+    def refresh(self):
+        #---------Account Label----------------#
+        global Wlogin
+        count = '0'
+        self.mylabel = QLabel(count, self)
+        self.mylabel.move(150, 250)
+        self.mylabel.setFont(QFont('Arial', 18))  
+        self.mylabel.show()                
+        for i in range(10):
+            print(count)
+            self.mylabel.setText(count)
+            count = int(count)
+            count = count+1
+            count = str(count)      
+            time.sleep(1)  
+            QApplication.processEvents()
 #---------page model-----------#
 class messagewindows(QWidget):
     def __init__(self):
@@ -93,15 +108,36 @@ class messagewindows(QWidget):
 
 
 #-----------function-----------#
+def encode(data):
+    for item in data:
+        predata =''
+        for i in range(len(data[item])):
+            predata = predata + chr((ord(data[item][i])+60))
+        data[item] = predata
+    return data
+
+def decode(data):
+    for item in data:
+        predata =''
+        for i in range(len(data[item])):
+            predata = predata + chr((ord(data[item][i])-60))
+        data[item] = predata
+    return data
+
+def RefreshData():
+    with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'rb') as fp:
+        global data
+        data = pickle.load(fp)
+        data = decode(data)
+        fp.close()
+
 def compare():
     if os.path.isfile(appPath+'/'+Wlogin.Accountedit.text()+'.json')== True:
-        with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'rb') as fp:
-            data = pickle.load(fp)
-            fp.close()        
-        if data[Wlogin.Accountedit.text()]==Wlogin.PrevateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
+        RefreshData()
+        if data[Wlogin.Accountedit.text()]==Wlogin.PrivateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
             WHomePage.show()
+            WHomePage.refresh()
             Wlogin.hide()
-            del data
         else:
             Wlogin.hide()
             WErrorPage.show()
@@ -112,20 +148,21 @@ def compare():
         time.sleep(10)     
    
 def RegisterCreate():
-    if WRegisterPage.SetPrevateKeyedit.text()!='' and WRegisterPage.SetAccountedit.text()!='':
+    if WRegisterPage.SetPrivateKeyedit.text()!='' and WRegisterPage.SetAccountedit.text()!='':
         if os.path.isfile(appPath+'/'+WRegisterPage.SetAccountedit.text()+'.json')== True:
-            QMessageBox.information(None, 'Create Fail', 'Create Fail!, the account has exist.')
+            QMessageBox.information(None, 'Create Fail', 'Create Fail!\nThe account has exist.')
         else:
-            QMessageBox.information(None, 'Create successfully!', 'Create successfully! Prevate Key will not showing anymore,Please remember it.')
+            QMessageBox.information(None, 'Create successfully!', 'Create successfully!\nPrivate Key will not showing anymore,Please remember it.')
             with open(appPath+'/'+WRegisterPage.SetAccountedit.text()+'.json', 'wb') as fp:
                 data ={}
-                data[WRegisterPage.SetAccountedit.text()] = WRegisterPage.SetPrevateKeyedit.text()
+                data[WRegisterPage.SetAccountedit.text()] = WRegisterPage.SetPrivateKeyedit.text()
+                data = encode(data)
                 pickle.dump(data, fp)
                 fp.close()
             Wlogin.show()
             WRegisterPage.hide()
     else:
-        QMessageBox.information(None, 'Create Fail', 'Please enter the Account and Prevate Key.')
+        QMessageBox.information(None, 'Create Fail', 'Please enter the Account and Private Key.')
 
 
 
@@ -148,6 +185,7 @@ def start():
 
 
 #------ Setting -----------------#
+data = {}
 appPath = os.getcwd()
 programkey = datetime.now().strftime("%Y%m%d")
 app = QApplication(sys.argv)
@@ -156,5 +194,6 @@ WHomePage = HomePage()
 WErrorPage = ErrorPage()
 WRegisterPage = RegisterPage()
 messagewindow = messagewindows()
+
 start()
 sys.exit(app.exec_())
