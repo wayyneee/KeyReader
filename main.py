@@ -1,11 +1,11 @@
 import sys,os
-from PyQt5.QtWidgets import (QApplication, QWidget, QGridLayout, QLineEdit,QPushButton,
-                             QLabel,QMainWindow,QMessageBox)
 from PyQt5.QtGui import QFont
 import time
 import pickle
 from datetime import datetime
-
+from PyQt5.QtGui import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtCore import *
 
 #------------TAB--------------#
 class login(QMainWindow):
@@ -80,22 +80,29 @@ class HomePage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('RememberKey')
         self.setGeometry(500, 200, 500, 500)
+        #---------add button------------------#
+        self.ADDbutton = QPushButton('ADD',self)
+        self.ADDbutton.move(280,80)
+        #---------Delete button---------------#
+        self.Deletebutton = QPushButton('Delete',self)
+        self.Deletebutton.move(380,80)
+        #--------Search button --------------#
+        self.Searchbutton = QPushButton('Search',self)
+        self.Searchbutton.move(280,110)  
+        #------- Ｓignout button -------------#  
+        self.Signoutbutton = QPushButton('Signout',self)
+        self.Signoutbutton.move(380,110)  
     def refresh(self):
         #---------Account Label----------------#
         global Wlogin
-        count = '0'
-        self.mylabel = QLabel(count, self)
-        self.mylabel.move(150, 250)
-        self.mylabel.setFont(QFont('Arial', 18))  
+        self.mylabel = QLabel(Wlogin.Accountedit.text(), self)
+        self.mylabel.move(27, 10)
+        self.mylabel.setStyleSheet("background-color: lightgreen") 
+        self.mylabel.setFont(QFont('Arial', 30))
+        self.mylabel.setStyleSheet("border: 1px solid black;")
+        self.mylabel.setAlignment(Qt.AlignCenter)
+        self.mylabel.resize(450,50)
         self.mylabel.show()                
-        for i in range(10):
-            print(count)
-            self.mylabel.setText(count)
-            count = int(count)
-            count = count+1
-            count = str(count)      
-            time.sleep(1)  
-            QApplication.processEvents()
 #---------page model-----------#
 class messagewindows(QWidget):
     def __init__(self):
