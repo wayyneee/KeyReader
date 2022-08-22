@@ -35,7 +35,11 @@ class login(QMainWindow):
         self.loginbutton.move(130, 160)
         #------------------- register button --------------------------#
         self.registerbutton = QPushButton('Register',self)
-        self.registerbutton.move(20, 160)    
+        self.registerbutton.move(20, 160)
+    def clear(self):
+        self.programkeyedit.clear()
+        self.Accountedit.clear()
+        self.PrivateKeyedit.clear()   
 
 class ErrorPage(QMainWindow):
     def __init__(self):
@@ -72,6 +76,9 @@ class RegisterPage(QMainWindow):
         #--------------------relogin -----------------------------#
         self.relogin = QPushButton('return',self)
         self.relogin.move(10,110)        
+    def clear(self):
+        self.SetAccountedit.clear()
+        self.SetPrivateKeyedit.clear()
 
 class HomePage(QMainWindow):
     def __init__(self):
@@ -90,11 +97,12 @@ class HomePage(QMainWindow):
         self.Searchbutton = QPushButton('Search',self)
         self.Searchbutton.move(280,110)  
         #------- Ｓignout button -------------#  
-        self.Signoutbutton = QPushButton('Signout',self)
+        self.Signoutbutton = QPushButton('Sign out',self)
         self.Signoutbutton.move(380,110)  
     def refresh(self):
         #---------Account Label----------------#
         global Wlogin
+        global data
         self.mylabel = QLabel(Wlogin.Accountedit.text(), self)
         self.mylabel.move(27, 10)
         self.mylabel.setStyleSheet("background-color: lightgreen") 
@@ -102,7 +110,65 @@ class HomePage(QMainWindow):
         self.mylabel.setStyleSheet("border: 1px solid black;")
         self.mylabel.setAlignment(Qt.AlignCenter)
         self.mylabel.resize(450,50)
-        self.mylabel.show()                
+        self.mylabel.show()
+        #--------Select Account Label -----------#
+        self.SelectAccountlabel = QLabel('Select Account :', self)
+        self.SelectAccountlabel.move(30,80)
+        self.SelectAccountlabel.show()
+        #--------Select Account comboBox---------#
+        self.Accountcombobox = QComboBox(self)
+        AccountList = self.UpdateAccountList()
+        self.Accountcombobox.addItems(AccountList)
+        self.Accountcombobox.setCurrentIndex(0)
+        self.Accountcombobox.resize(200,35)
+        self.Accountcombobox.move(30, 110)
+        self.Accountcombobox.show()
+        # self.Accountcombobox.currentIndexChanged.connect(self.onComboBoxChanged) 
+    def UpdateAccountList(self):
+        global data
+        global Wlogin
+        AccountList = []
+        for item in data:
+            if item != Wlogin.Accountedit.text():
+                AccountList.append(item)  
+        return AccountList
+
+class AddPage(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    def initUI(self):
+        self.setWindowTitle('ADD Account')
+        self.setGeometry(500, 200, 350, 500)
+        #------- ADD account Label ----------#
+        self.AddAccountlabel = QLabel('Add Account :', self)
+        self.AddAccountlabel.move(27, 10)
+        self.AddAccountedit = QLineEdit(self)
+        self.AddAccountedit.resize(200,30)
+        self.AddAccountedit.move(127,10)
+        #------- Account Key Label ---------#
+        self.AccountKeylabel = QLabel('Set Key:', self)
+        self.AccountKeylabel.move(27, 60)
+        self.AccountKeyedit = QLineEdit(self)
+        self.AccountKeyedit.resize(200,30)
+        self.AccountKeyedit.move(127,60)
+        #-------Account Note Label ----------------#
+        self.AccountNotelabel = QLabel('Note:', self)
+        self.AccountNotelabel.move(27, 110)
+        self.AccountNoteedit = QTextEdit(self)
+        self.AccountNoteedit.resize(300,300)
+        self.AccountNoteedit.move(27,150)
+        #------Save Account button-------------------------#
+        self.SaveAccountButton = QPushButton('Save',self)
+        self.SaveAccountButton.move(230,460)
+        #------ return button ----------------------#
+        self.returnbutton = QPushButton('Return', self)
+        self.returnbutton.move(27,460) 
+    def clear(self):
+        self.AddAccountedit.clear()
+        self.AccountKeyedit.clear()
+        self.AccountNoteedit.clear()
+
 #---------page model-----------#
 class messagewindows(QWidget):
     def __init__(self):
@@ -138,6 +204,8 @@ def RefreshData():
         data = decode(data)
         fp.close()
 
+
+#----------Action-------------#
 def compare():
     if os.path.isfile(appPath+'/'+Wlogin.Accountedit.text()+'.json')== True:
         RefreshData()
@@ -153,7 +221,10 @@ def compare():
         Wlogin.hide()
         WErrorPage.show()
         time.sleep(10)     
-   
+def ErrorToLogin():
+    Wlogin.clear()
+    Wlogin.show()
+    WErrorPage.hide()   
 def RegisterCreate():
     if WRegisterPage.SetPrivateKeyedit.text()!='' and WRegisterPage.SetAccountedit.text()!='':
         if os.path.isfile(appPath+'/'+WRegisterPage.SetAccountedit.text()+'.json')== True:
@@ -166,28 +237,43 @@ def RegisterCreate():
                 data = encode(data)
                 pickle.dump(data, fp)
                 fp.close()
+            Wlogin.clear()
             Wlogin.show()
             WRegisterPage.hide()
     else:
-        QMessageBox.information(None, 'Create Fail', 'Please enter the Account and Private Key.')
-
-
-
-
-#----------action-------------#
+        QMessageBox.information(None, 'Create Fail', 'Please enter the Account and Private Key.')  
+def ToRegisterPage():
+    WRegisterPage.clear()
+    WRegisterPage.show()
+    Wlogin.hide()
+def RegisterToLogin():
+    Wlogin.clear()
+    Wlogin.show()
+    WRegisterPage.hide()
+def HomeToAdd():
+    WAddPage.clear()
+    WAddPage.show()
+    WHomePage.hide()
+def AddToHome():
+    RefreshData()
+    WAddPage.hide()
+    WHomePage.show()
+#----------listener-------------#
 def start():
     #- login page -#
     Wlogin.show()
     Wlogin.loginbutton.clicked.connect(compare)
-    Wlogin.registerbutton.clicked.connect(WRegisterPage.show)
-    Wlogin.registerbutton.clicked.connect(Wlogin.hide)
+    Wlogin.registerbutton.clicked.connect(ToRegisterPage)
     #- Error Page -#
-    WErrorPage.relogin.clicked.connect(Wlogin.show)
-    WErrorPage.relogin.clicked.connect(WErrorPage.hide)
+    WErrorPage.relogin.clicked.connect(ErrorToLogin)
     #- Register Page -#
     WRegisterPage.registerbutton.clicked.connect(RegisterCreate)
-    WRegisterPage.relogin.clicked.connect(Wlogin.show)
-    WRegisterPage.relogin.clicked.connect(WRegisterPage.hide)
+    WRegisterPage.relogin.clicked.connect(RegisterToLogin)
+    #- Home Page -#
+    WHomePage.ADDbutton.clicked.connect(HomeToAdd)
+    #- Add Page -#
+    WAddPage.returnbutton.clicked.connect(AddToHome)
+
 
 
 
@@ -200,7 +286,7 @@ Wlogin = login()
 WHomePage = HomePage()
 WErrorPage = ErrorPage()
 WRegisterPage = RegisterPage()
-messagewindow = messagewindows()
+WAddPage = AddPage()
 
 start()
 sys.exit(app.exec_())
