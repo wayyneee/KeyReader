@@ -8,7 +8,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 
 #------------TAB--------------#
-class login(QMainWindow):
+class LoginPage(QMainWindow):
     def __init__(self):
         super().__init__()
         self.initUI()
@@ -98,11 +98,37 @@ class HomePage(QMainWindow):
         self.Searchbutton.move(280,110)  
         #------- Ｓignout button -------------#  
         self.Signoutbutton = QPushButton('Sign out',self)
-        self.Signoutbutton.move(380,110)  
-    def refresh(self):
+        self.Signoutbutton.move(380,110)
+        #--------Select Account Label -----------#
+        self.SelectAccountlabel = QLabel('Select Account :', self)
+        self.SelectAccountlabel.move(30,80)
+        #------- AccountText Label ---------#
+        self.AccountTextlabel = QLabel('Account :',self)
+        self.AccountTextlabel.move(30,160)
+        #------- AccountCopy button --------#
+        self.AccountCopybutton = QPushButton('Copy',self)
+        self.AccountCopybutton.move(30,190)
+        #------- KeyText label ---------------------#
+        self.KeyTextlabel = QLabel('Key :',self)
+        self.KeyTextlabel.move(30,210)
+        #------- KeyCopy button---------------------#
+        self.KeyCopybutton = QPushButton('Copy',self)
+        self.KeyCopybutton.move(30,240)
+        #------- NoteText label --------------------#
+        self.NoteTextlabel = QLabel('Note :',self)
+        self.NoteTextlabel.move(30,260)
+        #--------Select Account comboBox---------#
+        self.Accountcombobox = QComboBox(self)
+        AccountList = self.UpdateAccountList()
+        self.Accountcombobox.addItems(AccountList)
+        self.Accountcombobox.resize(200,35)
+        self.Accountcombobox.move(30, 110)
+        self.Accountcombobox.show()
+    def Refresh(self):
         #---------Account Label----------------#
         global Wlogin
         global data
+        global WHomePage
         self.mylabel = QLabel(Wlogin.Accountedit.text(), self)
         self.mylabel.move(27, 10)
         self.mylabel.setStyleSheet("background-color: lightgreen") 
@@ -111,25 +137,39 @@ class HomePage(QMainWindow):
         self.mylabel.setAlignment(Qt.AlignCenter)
         self.mylabel.resize(450,50)
         self.mylabel.show()
-        #--------Select Account Label -----------#
-        self.SelectAccountlabel = QLabel('Select Account :', self)
-        self.SelectAccountlabel.move(30,80)
-        self.SelectAccountlabel.show()
         #--------Select Account comboBox---------#
         self.Accountcombobox = QComboBox(self)
         AccountList = self.UpdateAccountList()
         self.Accountcombobox.addItems(AccountList)
-        self.Accountcombobox.setCurrentIndex(0)
         self.Accountcombobox.resize(200,35)
         self.Accountcombobox.move(30, 110)
         self.Accountcombobox.show()
-        # self.Accountcombobox.currentIndexChanged.connect(self.onComboBoxChanged) 
+        #------- ShowAccount Label ---------#
+        self.ShowAccountlabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Account'],self)
+        self.ShowAccountlabel.move(100,160)
+        self.ShowAccountlabel.show()
+        #------- ShowKey label ---------------------#
+        self.ShowKeylabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Key'],self)
+        self.ShowKeylabel.move(100,210)
+        self.ShowKeylabel.show()
+        #------- ShowNoteText label --------------------#
+        self.ShowNotelabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Note'],self)
+        self.ShowNotelabel.resize(430,200)
+        self.ShowNotelabel.setStyleSheet("background-color: white") 
+        self.ShowNotelabel.move(30,290)
+        self.ShowNotelabel.setWordWrap(True)
+        self.ShowNotelabel.show()
+    def clear(self):
+        self.ShowAccountlabel.clear()
+        self.ShowKeylabel.clear()
+        self.ShowNotelabel.clear()
+
     def UpdateAccountList(self):
         global data
         global Wlogin
         AccountList = []
         for item in data:
-            if item != Wlogin.Accountedit.text():
+            if item != 'ProgramAccount':
                 AccountList.append(item)  
         return AccountList
 
@@ -140,22 +180,28 @@ class AddPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('ADD Account')
         self.setGeometry(500, 200, 350, 500)
+        #------- Account Name Label ----------#
+        self.AccountNamelabel = QLabel('Account Name:', self)
+        self.AccountNamelabel.move(27, 10)
+        self.AccountNameedit = QLineEdit(self)
+        self.AccountNameedit.resize(200,25)
+        self.AccountNameedit.move(127,10)
         #------- ADD account Label ----------#
         self.AddAccountlabel = QLabel('Add Account :', self)
-        self.AddAccountlabel.move(27, 10)
+        self.AddAccountlabel.move(27, 45)
         self.AddAccountedit = QLineEdit(self)
-        self.AddAccountedit.resize(200,30)
-        self.AddAccountedit.move(127,10)
+        self.AddAccountedit.resize(200,25)
+        self.AddAccountedit.move(127,45)
         #------- Account Key Label ---------#
         self.AccountKeylabel = QLabel('Set Key:', self)
-        self.AccountKeylabel.move(27, 60)
+        self.AccountKeylabel.move(27, 80)
         self.AccountKeyedit = QLineEdit(self)
-        self.AccountKeyedit.resize(200,30)
-        self.AccountKeyedit.move(127,60)
+        self.AccountKeyedit.resize(200,25)
+        self.AccountKeyedit.move(127,80)
         #-------Account Note Label ----------------#
         self.AccountNotelabel = QLabel('Note:', self)
         self.AccountNotelabel.move(27, 110)
-        self.AccountNoteedit = QTextEdit(self)
+        self.AccountNoteedit = QPlainTextEdit(self)
         self.AccountNoteedit.resize(300,300)
         self.AccountNoteedit.move(27,150)
         #------Save Account button-------------------------#
@@ -165,6 +211,7 @@ class AddPage(QMainWindow):
         self.returnbutton = QPushButton('Return', self)
         self.returnbutton.move(27,460) 
     def clear(self):
+        self.AccountNameedit.clear()
         self.AddAccountedit.clear()
         self.AccountKeyedit.clear()
         self.AccountNoteedit.clear()
@@ -184,18 +231,24 @@ class messagewindows(QWidget):
 def encode(data):
     for item in data:
         predata =''
-        for i in range(len(data[item])):
-            predata = predata + chr((ord(data[item][i])+60))
-        data[item] = predata
+        for itm in data[item]:
+            for i in range(len(data[item][itm])):
+                predata = predata + chr((ord(data[item][itm][i])+60))
+            data[item][itm]=predata
+            predata = ''
     return data
+
 
 def decode(data):
     for item in data:
         predata =''
-        for i in range(len(data[item])):
-            predata = predata + chr((ord(data[item][i])-60))
-        data[item] = predata
+        for itm in data[item]:
+            for i in range(len(data[item][itm])):
+                predata = predata + chr((ord(data[item][itm][i])-60))
+            data[item][itm]=predata
+            predata = ''
     return data
+
 
 def RefreshData():
     with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'rb') as fp:
@@ -203,15 +256,24 @@ def RefreshData():
         data = pickle.load(fp)
         data = decode(data)
         fp.close()
+def AddAccount(AccountName,Account,Key,Note):
+    global data
+    data[AccountName]= {'Account':Account,'Key':Key,'Note':Note}
 
+def SaveData():
+    with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'wb') as fp:
+        global data
+        data = encode(data)
+        pickle.dump(data,fp)
+        fp.close()
 
 #----------Action-------------#
 def compare():
     if os.path.isfile(appPath+'/'+Wlogin.Accountedit.text()+'.json')== True:
         RefreshData()
-        if data[Wlogin.Accountedit.text()]==Wlogin.PrivateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
+        if data['ProgramAccount']['Key']==Wlogin.PrivateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
             WHomePage.show()
-            WHomePage.refresh()
+            WHomePage.Refresh()
             Wlogin.hide()
         else:
             Wlogin.hide()
@@ -232,8 +294,10 @@ def RegisterCreate():
         else:
             QMessageBox.information(None, 'Create successfully!', 'Create successfully!\nPrivate Key will not showing anymore,Please remember it.')
             with open(appPath+'/'+WRegisterPage.SetAccountedit.text()+'.json', 'wb') as fp:
-                data ={}
-                data[WRegisterPage.SetAccountedit.text()] = WRegisterPage.SetPrivateKeyedit.text()
+                data ={'ProgramAccount':{'Account':'','Key':'','Note':''}}
+                data['ProgramAccount']['Account'] = WRegisterPage.SetAccountedit.text()
+                data['ProgramAccount']['Key'] = WRegisterPage.SetPrivateKeyedit.text()
+                data['ProgramAccount']['Note'] = WRegisterPage.SetAccountedit.text() + WRegisterPage.SetPrivateKeyedit.text()
                 data = encode(data)
                 pickle.dump(data, fp)
                 fp.close()
@@ -255,9 +319,19 @@ def HomeToAdd():
     WAddPage.show()
     WHomePage.hide()
 def AddToHome():
-    RefreshData()
     WAddPage.hide()
     WHomePage.show()
+def AddPageSave():
+    global data
+    global WHomePage
+    AddAccount(WAddPage.AccountNameedit.text(), WAddPage.AddAccountedit.text(), WAddPage.AccountKeyedit.text(), WAddPage.AccountNoteedit.toPlainText())
+    SaveData()
+    RefreshData()
+    WHomePage.Refresh()
+    WAddPage.hide()
+    WHomePage.show()
+def ddd():
+    print(1)
 #----------listener-------------#
 def start():
     #- login page -#
@@ -273,6 +347,7 @@ def start():
     WHomePage.ADDbutton.clicked.connect(HomeToAdd)
     #- Add Page -#
     WAddPage.returnbutton.clicked.connect(AddToHome)
+    WAddPage.SaveAccountButton.clicked.connect(AddPageSave)
 
 
 
@@ -282,7 +357,7 @@ data = {}
 appPath = os.getcwd()
 programkey = datetime.now().strftime("%Y%m%d")
 app = QApplication(sys.argv)
-Wlogin = login()
+Wlogin = LoginPage()
 WHomePage = HomePage()
 WErrorPage = ErrorPage()
 WRegisterPage = RegisterPage()
