@@ -117,13 +117,9 @@ class HomePage(QMainWindow):
         #------- NoteText label --------------------#
         self.NoteTextlabel = QLabel('Note :',self)
         self.NoteTextlabel.move(30,260)
-        #--------Select Account comboBox---------#
-        self.Accountcombobox = QComboBox(self)
-        AccountList = self.UpdateAccountList()
-        self.Accountcombobox.addItems(AccountList)
-        self.Accountcombobox.resize(200,35)
-        self.Accountcombobox.move(30, 110)
-        self.Accountcombobox.show()
+        #--------Select Account comboBox button---------#
+        self.Accountcomboxbutton = QPushButton('select',self)
+        self.Accountcomboxbutton.move(130,140)
     def Refresh(self):
         #---------Account Label----------------#
         global Wlogin
@@ -144,6 +140,7 @@ class HomePage(QMainWindow):
         self.Accountcombobox.resize(200,35)
         self.Accountcombobox.move(30, 110)
         self.Accountcombobox.show()
+    def refreshtable(self):
         #------- ShowAccount Label ---------#
         self.ShowAccountlabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Account'],self)
         self.ShowAccountlabel.move(100,160)
@@ -216,6 +213,26 @@ class AddPage(QMainWindow):
         self.AccountKeyedit.clear()
         self.AccountNoteedit.clear()
 
+class DeletePage(QMainWindow):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+    def initUI(self):
+        global WHomePage
+        self.setWindowTitle('Delete Page')
+        self.setGeometry(550, 250, 300, 200)
+        self.OKbutton = QPushButton('OK',self)
+        self.OKbutton.move(40,160) 
+        self.returnbutton = QPushButton('return',self)
+        self.returnbutton.move(140,160)       
+    def refreshDeletePage(self):
+        self.deleteAccountlabel = QLabel('If you want to delete account 「 '+ WHomePage.Accountcombobox.currentText()+' 」, please enter theaccount name again.',self)
+        self.deleteAccountlabel.move(15,30)
+        self.deleteAccountlabel.resize(260,50)
+        self.deleteAccountlabel.setWordWrap(True)
+        self.deleteedit = QLineEdit(self)
+        self.deleteedit.move(15,90)
+        self.deleteedit.resize(260,30)
 #---------page model-----------#
 class messagewindows(QWidget):
     def __init__(self):
@@ -274,6 +291,7 @@ def compare():
         if data['ProgramAccount']['Key']==Wlogin.PrivateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
             WHomePage.show()
             WHomePage.Refresh()
+            WHomePage.refreshtable()
             Wlogin.hide()
         else:
             Wlogin.hide()
@@ -330,8 +348,31 @@ def AddPageSave():
     WHomePage.Refresh()
     WAddPage.hide()
     WHomePage.show()
-def ddd():
-    print(1)
+def SelectAccount():
+    WHomePage.clear()
+    WHomePage.refreshtable()
+def DeleteAccount():
+    WHomePage.hide()
+    WDeletePage.refreshDeletePage()
+    WDeletePage.show()
+def DeleteToHome():
+    WDeletePage.hide()
+    WHomePage.show()
+def CheckToDelete():
+    global WHomePage
+    global data
+    if WDeletePage.deleteedit.text()==WHomePage.Accountcombobox.currentText():
+        QMessageBox.information(None,'delete','Delete Successfully!')
+        del data[WHomePage.Accountcombobox.currentText()]
+        SaveData()
+        RefreshData()
+        WHomePage.Refresh()
+        WHomePage.clear()
+        WHomePage.refreshtable()
+        WDeletePage.hide()
+        WHomePage.show()
+    else:
+        QMessageBox.information(None,'delete','Delete Fail,Please check the Account name.')
 #----------listener-------------#
 def start():
     #- login page -#
@@ -345,9 +386,15 @@ def start():
     WRegisterPage.relogin.clicked.connect(RegisterToLogin)
     #- Home Page -#
     WHomePage.ADDbutton.clicked.connect(HomeToAdd)
+    WHomePage.Accountcomboxbutton.clicked.connect(SelectAccount)
+    WHomePage.Deletebutton.clicked.connect(DeleteAccount)
     #- Add Page -#
     WAddPage.returnbutton.clicked.connect(AddToHome)
     WAddPage.SaveAccountButton.clicked.connect(AddPageSave)
+    #-DeletePage-#
+    WDeletePage.returnbutton.clicked.connect(DeleteToHome)
+    WDeletePage.OKbutton.clicked.connect(CheckToDelete)
+
 
 
 
@@ -362,6 +409,7 @@ WHomePage = HomePage()
 WErrorPage = ErrorPage()
 WRegisterPage = RegisterPage()
 WAddPage = AddPage()
+WDeletePage = DeletePage()
 
 start()
 sys.exit(app.exec_())
