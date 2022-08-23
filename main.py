@@ -1,4 +1,5 @@
 from ast import keyword
+from multiprocessing.connection import wait
 import sys,os
 from turtle import goto
 from PyQt5.QtGui import QFont
@@ -51,10 +52,21 @@ class ErrorPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('RememberKey')
         self.setGeometry(600, 300, 250, 150)
-        self.Errorlabel = QLabel('Key Error ...:', self)
-        self.Errorlabel.move(80, 50)
         self.relogin = QPushButton('retry',self)
         self.relogin.move(75,80)
+    def wait(self):
+        count = 9
+        for i in range(10):
+            self.Errorlabel = QLabel('Key Error ...wait..'+ str(count - i), self)
+            self.Errorlabel.move(65, 50)
+            self.Errorlabel.resize(130,25)
+            self.Errorlabel.show()
+            self.relogin.hide()
+            QApplication.processEvents()
+            time.sleep(1)
+            if i <9:
+                self.Errorlabel.clear()
+        self.relogin.show()
 
 class RegisterPage(QMainWindow):
     def __init__(self):
@@ -153,46 +165,72 @@ class HomePage(QMainWindow):
         self.Accountcombobox.resize(200,35)
         self.Accountcombobox.move(30, 140)
         self.Accountcombobox.show()
+    def CreateRefreshtable(self,HasList):
+        global WHomePage,data
+        if HasList == False:
+            #------- ShowAccount Name Label------#
+            self.ShowAccountNamelabel = QLabel('',self)
+            self.ShowAccountNamelabel.move(130,175)
+            self.ShowAccountNamelabel.resize(200,20)
+            self.ShowAccountNamelabel.show()
+            #------- ShowAccount Label ---------#
+            self.ShowAccountlabel = QLabel('',self)
+            self.ShowAccountlabel.move(100,205)
+            self.ShowAccountlabel.resize(200,20)
+            self.ShowAccountlabel.setStyleSheet("background-color: white") 
+            self.ShowAccountlabel.show()        
+            #------- ShowKey label ---------------------#
+            self.ShowKeylabel = QLabel('',self)
+            self.ShowKeylabel.move(100,235)
+            self.ShowKeylabel.resize(200,20)
+            self.ShowKeylabel.setStyleSheet("background-color: white") 
+            self.ShowKeylabel.show()
+            #------- ShowNoteText label --------------------#
+            self.ShowNotelabel = QLabel('',self)
+            self.ShowNotelabel.resize(430,200)
+            self.ShowNotelabel.setStyleSheet("background-color: white") 
+            self.ShowNotelabel.move(30,290)
+            self.ShowNotelabel.setWordWrap(True)
+            self.ShowNotelabel.show()
+        else:
+            #------- ShowAccount Name Label------#
+            self.ShowAccountNamelabel = QLabel(WHomePage.Accountcombobox.currentText(),self)
+            self.ShowAccountNamelabel.move(130,175)
+            self.ShowAccountNamelabel.resize(200,20)
+            self.ShowAccountNamelabel.show()
+            #------- ShowAccount Label ---------#
+            self.ShowAccountlabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Account'],self)
+            self.ShowAccountlabel.move(100,205)
+            self.ShowAccountlabel.resize(200,20)
+            self.ShowAccountlabel.setStyleSheet("background-color: white") 
+            self.ShowAccountlabel.show()        
+            #------- ShowKey label ---------------------#
+            self.ShowKeylabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Key'],self)
+            self.ShowKeylabel.move(100,235)
+            self.ShowKeylabel.resize(200,20)
+            self.ShowKeylabel.setStyleSheet("background-color: white") 
+            self.ShowKeylabel.show()
+            #------- ShowNoteText label --------------------#
+            self.ShowNotelabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Note'],self)
+            self.ShowNotelabel.resize(430,200)
+            self.ShowNotelabel.setStyleSheet("background-color: white") 
+            self.ShowNotelabel.move(30,290)
+            self.ShowNotelabel.setWordWrap(True)
+            self.ShowNotelabel.show() 
     def refreshtable(self):
-        #------- ShowAccount Name Label------#
-        self.ShowAccountNamelabel = QLabel('',self)
-        self.ShowAccountNamelabel.move(130,175)
-        self.ShowAccountNamelabel.resize(200,20)
-        self.ShowAccountNamelabel.show()
-        #------- ShowAccount Label ---------#
-        self.ShowAccountlabel = QLabel('',self)
-        self.ShowAccountlabel.move(100,205)
-        self.ShowAccountlabel.resize(200,20)
-        self.ShowAccountlabel.setStyleSheet("background-color: white") 
-        self.ShowAccountlabel.show()        
-        #------- ShowKey label ---------------------#
-        self.ShowKeylabel = QLabel('',self)
-        self.ShowKeylabel.move(100,235)
-        self.ShowKeylabel.resize(200,20)
-        self.ShowKeylabel.setStyleSheet("background-color: white") 
-        self.ShowKeylabel.show()
-        #------- ShowNoteText label --------------------#
-        self.ShowNotelabel = QLabel('',self)
-        self.ShowNotelabel.resize(430,200)
-        self.ShowNotelabel.setStyleSheet("background-color: white") 
-        self.ShowNotelabel.move(30,290)
-        self.ShowNotelabel.setWordWrap(True)
-        self.ShowNotelabel.show()      
+        if self.AccountList == []:
+            self.CreateRefreshtable(HasList = False)
         if self.AccountList!=[]:
-            self.ShowAccountNamelabel.setText(WHomePage.Accountcombobox.currentText())
-            self.ShowAccountlabel.setText(data[WHomePage.Accountcombobox.currentText()]['Account'])
-            self.ShowKeylabel.setText(data[WHomePage.Accountcombobox.currentText()]['Key'])
-            self.ShowNotelabel.setText(data[WHomePage.Accountcombobox.currentText()]['Note'])
+            self.CreateRefreshtable(HasList = True )
     def clear(self):
         self.ShowAccountNamelabel.clear()
         self.ShowAccountlabel.clear()
         self.ShowKeylabel.clear()
         self.ShowNotelabel.clear()
     def clearmylabel(self):
-        self.Accountcombobox.clear()
         self.mylabel.clear()
     def clearSelectbox(self):
-        self.Accountcombobox.clear()
+        self.Accountcombobox.hide()
     def UpdateAccountList(self):
         global data
         global Wlogin
@@ -275,16 +313,6 @@ class DeletePage(QMainWindow):
     def clear(self):
         self.deleteAccountlabel.clear()
         self.deleteedit.clear()
-#---------page model-----------#
-class messagewindows(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-
-    def initUI(self):
-        self.setWindowTitle('my window')
-        self.setGeometry(50, 50, 200, 150)
-
 
 #-----------function-----------#
 def encode(data):
@@ -344,11 +372,11 @@ def compare():
         else:
             Wlogin.hide()
             WErrorPage.show()
-            time.sleep(10)
+            WErrorPage.wait()
     else:
         Wlogin.hide()
-        WErrorPage.show()
-        time.sleep(10)     
+        WErrorPage.show() 
+        WErrorPage.wait()  
 def ErrorToLogin():
     Wlogin.clear()
     Wlogin.show()
