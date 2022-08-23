@@ -67,6 +67,8 @@ class ErrorPage(QMainWindow):
             if i <9:
                 self.Errorlabel.clear()
         self.relogin.show()
+    def clear(self):
+        self.Errorlabel.clear()
 
 class RegisterPage(QMainWindow):
     def __init__(self):
@@ -380,6 +382,7 @@ def compare():
 def ErrorToLogin():
     Wlogin.clear()
     Wlogin.show()
+    WErrorPage.clear()
     WErrorPage.hide()   
 def RegisterCreate():
     if WRegisterPage.SetPrivateKeyedit.text()!='' and WRegisterPage.SetAccountedit.text()!='':
