@@ -1,3 +1,4 @@
+from ast import keyword
 import sys,os
 from turtle import goto
 from PyQt5.QtGui import QFont
@@ -87,6 +88,7 @@ class HomePage(QMainWindow):
         super().__init__()
         self.initUI()
     def initUI(self):
+        self.keyword = ''
         self.setWindowTitle('RememberKey')
         self.setGeometry(500, 200, 500, 500)
         #---------add button------------------#
@@ -98,9 +100,9 @@ class HomePage(QMainWindow):
         #--------Search button --------------#
         self.Searchbutton = QPushButton('Search',self)
         self.Searchbutton.move(130,65)
-        #------- Refresh button --------------#
-        self.Refreshbutton = QPushButton('Refresh',self)
-        self.Refreshbutton.move(130,95)
+        #------- RefreshAccountlist button --------------#
+        self.RefreshAccountlistbutton = QPushButton('Refresh',self)
+        self.RefreshAccountlistbutton.move(130,95)
         #------- Ｓignout button -------------#  
         self.Signoutbutton = QPushButton('Sign out',self)
         self.Signoutbutton.move(380,140)
@@ -187,16 +189,24 @@ class HomePage(QMainWindow):
         self.ShowKeylabel.clear()
         self.ShowNotelabel.clear()
     def clearmylabel(self):
+        self.Accountcombobox.clear()
         self.mylabel.clear()
-
+    def clearSelectbox(self):
+        self.Accountcombobox.clear()
     def UpdateAccountList(self):
         global data
         global Wlogin
         AccountList = []
-        for item in data:
-            if item != 'ProgramAccount':
-                AccountList.append(item)  
-        return AccountList
+        if self.keyword =='':
+            for item in data:
+                if item != 'ProgramAccount':
+                    AccountList.append(item)  
+            return AccountList
+        else :
+            for item in data:
+                if item !='ProgramAccount' and self.keyword in item :
+                    AccountList.append(item)
+            return AccountList  
 
 class AddPage(QMainWindow):
     def __init__(self):
@@ -387,6 +397,7 @@ def AddPageSave():
     SaveData()
     RefreshData()
     WHomePage.clearmylabel()
+    WHomePage.clearSelectbox()
     WHomePage.Refresh()
     WAddPage.hide()
     WHomePage.show()
@@ -415,9 +426,11 @@ def CheckToDelete():
         SaveData()
         RefreshData()
         WHomePage.clearmylabel()
+        WHomePage.clearSelectbox()
         WHomePage.Refresh()
         WHomePage.clear()
         WHomePage.refreshtable()
+        WDeletePage.clear()
         WDeletePage.hide()
         WHomePage.show()
     else:
@@ -425,6 +438,7 @@ def CheckToDelete():
 def Signout():
     global Wlogin,WHomePage
     WHomePage.hide()
+    WHomePage.clearSelectbox()
     WHomePage.clearmylabel()
     WHomePage.clear()
     Wlogin.clear()
@@ -433,7 +447,19 @@ def CopyAccount():
     pc.copy(data[WHomePage.Accountcombobox.currentText()]['Account'])
 def CopyKey():
     pc.copy(data[WHomePage.Accountcombobox.currentText()]['Key'])
+def SearchAccount():
+    global WHomePage
+    WHomePage.keyword =  WHomePage.Searchedit.text()
+    WHomePage.clearSelectbox()
+    WHomePage.clearmylabel()
+    WHomePage.Refresh()
 
+def RefreshAccountList():
+    global WHomePage
+    WHomePage.keyword = ''
+    WHomePage.clearSelectbox()
+    WHomePage.clearmylabel()
+    WHomePage.Refresh()
 #----------listener-------------#
 def start():
     #- login page -#
@@ -452,18 +478,14 @@ def start():
     WHomePage.Signoutbutton.clicked.connect(Signout)
     WHomePage.AccountCopybutton.clicked.connect(CopyAccount)
     WHomePage.KeyCopybutton.clicked.connect(CopyKey)
-    # WHomePage.Searchbutton.clicked.connect(SearchAccount)
+    WHomePage.Searchbutton.clicked.connect(SearchAccount)
+    WHomePage.RefreshAccountlistbutton.clicked.connect(RefreshAccountList)
     #- Add Page -#
     WAddPage.returnbutton.clicked.connect(AddToHome)
     WAddPage.SaveAccountButton.clicked.connect(AddPageSave)
     #-DeletePage-#
     WDeletePage.returnbutton.clicked.connect(DeleteToHome)
     WDeletePage.OKbutton.clicked.connect(CheckToDelete)
-
-
-
-
-
 #------ Setting -----------------#
 data = {}
 appPath = os.getcwd()
