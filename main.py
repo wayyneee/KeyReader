@@ -1,4 +1,5 @@
 import sys,os
+from turtle import goto
 from PyQt5.QtGui import QFont
 import time
 import pickle
@@ -6,6 +7,7 @@ from datetime import datetime
 from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
+import pyperclip as pc
 
 #------------TAB--------------#
 class LoginPage(QMainWindow):
@@ -88,43 +90,52 @@ class HomePage(QMainWindow):
         self.setWindowTitle('RememberKey')
         self.setGeometry(500, 200, 500, 500)
         #---------add button------------------#
-        self.ADDbutton = QPushButton('ADD',self)
-        self.ADDbutton.move(280,80)
+        self.ADDbutton = QPushButton('Add',self)
+        self.ADDbutton.move(380,80)
         #---------Delete button---------------#
         self.Deletebutton = QPushButton('Delete',self)
-        self.Deletebutton.move(380,80)
+        self.Deletebutton.move(380,110)
         #--------Search button --------------#
         self.Searchbutton = QPushButton('Search',self)
-        self.Searchbutton.move(280,110)  
+        self.Searchbutton.move(130,65)
+        #------- Refresh button --------------#
+        self.Refreshbutton = QPushButton('Refresh',self)
+        self.Refreshbutton.move(130,95)
         #------- Ｓignout button -------------#  
         self.Signoutbutton = QPushButton('Sign out',self)
-        self.Signoutbutton.move(380,110)
+        self.Signoutbutton.move(380,140)
+        #--------Search edit-------------------#
+        self.Searchedit = QLineEdit(self)
+        self.Searchedit.move(30,75)
         #--------Select Account Label -----------#
         self.SelectAccountlabel = QLabel('Select Account :', self)
-        self.SelectAccountlabel.move(30,80)
+        self.SelectAccountlabel.move(30,110)
+        #------- AccountName Label ---------#
+        self.AccountNamelabel = QLabel('Account Name :',self)
+        self.AccountNamelabel.move(30,170)
         #------- AccountText Label ---------#
         self.AccountTextlabel = QLabel('Account :',self)
-        self.AccountTextlabel.move(30,160)
+        self.AccountTextlabel.move(30,200)
         #------- AccountCopy button --------#
         self.AccountCopybutton = QPushButton('Copy',self)
-        self.AccountCopybutton.move(30,190)
+        self.AccountCopybutton.move(300,200)
         #------- KeyText label ---------------------#
         self.KeyTextlabel = QLabel('Key :',self)
-        self.KeyTextlabel.move(30,210)
+        self.KeyTextlabel.move(30,230)
         #------- KeyCopy button---------------------#
         self.KeyCopybutton = QPushButton('Copy',self)
-        self.KeyCopybutton.move(30,240)
+        self.KeyCopybutton.move(300,230)
         #------- NoteText label --------------------#
         self.NoteTextlabel = QLabel('Note :',self)
         self.NoteTextlabel.move(30,260)
         #--------Select Account comboBox button---------#
         self.Accountcomboxbutton = QPushButton('select',self)
-        self.Accountcomboxbutton.move(130,140)
+        self.Accountcomboxbutton.move(220,142)
     def Refresh(self):
-        #---------Account Label----------------#
         global Wlogin
         global data
         global WHomePage
+        #---------Account Label----------------#
         self.mylabel = QLabel(Wlogin.Accountedit.text(), self)
         self.mylabel.move(27, 10)
         self.mylabel.setStyleSheet("background-color: lightgreen") 
@@ -135,31 +146,48 @@ class HomePage(QMainWindow):
         self.mylabel.show()
         #--------Select Account comboBox---------#
         self.Accountcombobox = QComboBox(self)
-        AccountList = self.UpdateAccountList()
-        self.Accountcombobox.addItems(AccountList)
+        self.AccountList = self.UpdateAccountList()
+        self.Accountcombobox.addItems(self.AccountList)
         self.Accountcombobox.resize(200,35)
-        self.Accountcombobox.move(30, 110)
+        self.Accountcombobox.move(30, 140)
         self.Accountcombobox.show()
     def refreshtable(self):
+        #------- ShowAccount Name Label------#
+        self.ShowAccountNamelabel = QLabel('',self)
+        self.ShowAccountNamelabel.move(130,175)
+        self.ShowAccountNamelabel.resize(200,20)
+        self.ShowAccountNamelabel.show()
         #------- ShowAccount Label ---------#
-        self.ShowAccountlabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Account'],self)
-        self.ShowAccountlabel.move(100,160)
-        self.ShowAccountlabel.show()
+        self.ShowAccountlabel = QLabel('',self)
+        self.ShowAccountlabel.move(100,205)
+        self.ShowAccountlabel.resize(200,20)
+        self.ShowAccountlabel.setStyleSheet("background-color: white") 
+        self.ShowAccountlabel.show()        
         #------- ShowKey label ---------------------#
-        self.ShowKeylabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Key'],self)
-        self.ShowKeylabel.move(100,210)
+        self.ShowKeylabel = QLabel('',self)
+        self.ShowKeylabel.move(100,235)
+        self.ShowKeylabel.resize(200,20)
+        self.ShowKeylabel.setStyleSheet("background-color: white") 
         self.ShowKeylabel.show()
         #------- ShowNoteText label --------------------#
-        self.ShowNotelabel = QLabel(data[WHomePage.Accountcombobox.currentText()]['Note'],self)
+        self.ShowNotelabel = QLabel('',self)
         self.ShowNotelabel.resize(430,200)
         self.ShowNotelabel.setStyleSheet("background-color: white") 
         self.ShowNotelabel.move(30,290)
         self.ShowNotelabel.setWordWrap(True)
-        self.ShowNotelabel.show()
+        self.ShowNotelabel.show()      
+        if self.AccountList!=[]:
+            self.ShowAccountNamelabel.setText(WHomePage.Accountcombobox.currentText())
+            self.ShowAccountlabel.setText(data[WHomePage.Accountcombobox.currentText()]['Account'])
+            self.ShowKeylabel.setText(data[WHomePage.Accountcombobox.currentText()]['Key'])
+            self.ShowNotelabel.setText(data[WHomePage.Accountcombobox.currentText()]['Note'])
     def clear(self):
+        self.ShowAccountNamelabel.clear()
         self.ShowAccountlabel.clear()
         self.ShowKeylabel.clear()
         self.ShowNotelabel.clear()
+    def clearmylabel(self):
+        self.mylabel.clear()
 
     def UpdateAccountList(self):
         global data
@@ -226,13 +254,17 @@ class DeletePage(QMainWindow):
         self.returnbutton = QPushButton('return',self)
         self.returnbutton.move(140,160)       
     def refreshDeletePage(self):
-        self.deleteAccountlabel = QLabel('If you want to delete account 「 '+ WHomePage.Accountcombobox.currentText()+' 」, please enter theaccount name again.',self)
+        stri = 'If you want to delete account 「 '+ WHomePage.Accountcombobox.currentText()+' 」, please enter theaccount name again.'
+        self.deleteAccountlabel = QLabel(stri,self)
         self.deleteAccountlabel.move(15,30)
         self.deleteAccountlabel.resize(260,50)
         self.deleteAccountlabel.setWordWrap(True)
         self.deleteedit = QLineEdit(self)
         self.deleteedit.move(15,90)
         self.deleteedit.resize(260,30)
+    def clear(self):
+        self.deleteAccountlabel.clear()
+        self.deleteedit.clear()
 #---------page model-----------#
 class messagewindows(QWidget):
     def __init__(self):
@@ -268,6 +300,7 @@ def decode(data):
 
 
 def RefreshData():
+    Wlogin
     with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'rb') as fp:
         global data
         data = pickle.load(fp)
@@ -275,9 +308,12 @@ def RefreshData():
         fp.close()
 def AddAccount(AccountName,Account,Key,Note):
     global data
-    data[AccountName]= {'Account':Account,'Key':Key,'Note':Note}
-
+    if AccountName != '':
+        data[AccountName]= {'Account':Account,'Key':Key,'Note':Note}
+    else:
+        QMessageBox.information(None,'create fail','Please enter the Account Name')
 def SaveData():
+    Wlogin
     with open(appPath+'/'+Wlogin.Accountedit.text()+'.json', 'wb') as fp:
         global data
         data = encode(data)
@@ -287,11 +323,13 @@ def SaveData():
 #----------Action-------------#
 def compare():
     if os.path.isfile(appPath+'/'+Wlogin.Accountedit.text()+'.json')== True:
+        global data
+        global WHomePage
         RefreshData()
         if data['ProgramAccount']['Key']==Wlogin.PrivateKeyedit.text() and Wlogin.programkeyedit.text()== programkey:
-            WHomePage.show()
             WHomePage.Refresh()
             WHomePage.refreshtable()
+            WHomePage.show()
             Wlogin.hide()
         else:
             Wlogin.hide()
@@ -325,14 +363,17 @@ def RegisterCreate():
     else:
         QMessageBox.information(None, 'Create Fail', 'Please enter the Account and Private Key.')  
 def ToRegisterPage():
+    global WRegisterPage
     WRegisterPage.clear()
     WRegisterPage.show()
     Wlogin.hide()
 def RegisterToLogin():
+    global Wlogin
     Wlogin.clear()
     Wlogin.show()
     WRegisterPage.hide()
 def HomeToAdd():
+    global WAddPage
     WAddPage.clear()
     WAddPage.show()
     WHomePage.hide()
@@ -345,18 +386,25 @@ def AddPageSave():
     AddAccount(WAddPage.AccountNameedit.text(), WAddPage.AddAccountedit.text(), WAddPage.AccountKeyedit.text(), WAddPage.AccountNoteedit.toPlainText())
     SaveData()
     RefreshData()
+    WHomePage.clearmylabel()
     WHomePage.Refresh()
     WAddPage.hide()
     WHomePage.show()
 def SelectAccount():
+    global WHomePage
     WHomePage.clear()
     WHomePage.refreshtable()
 def DeleteAccount():
-    WHomePage.hide()
-    WDeletePage.refreshDeletePage()
-    WDeletePage.show()
+    global WHomePage
+    if WHomePage.AccountList!=[]:
+        WHomePage.hide()
+        WDeletePage.refreshDeletePage()
+        WDeletePage.show()
+    else:
+        QMessageBox.information(None,'Delete fail','Nothing to delete.')
 def DeleteToHome():
     WDeletePage.hide()
+    WDeletePage.clear()
     WHomePage.show()
 def CheckToDelete():
     global WHomePage
@@ -366,6 +414,7 @@ def CheckToDelete():
         del data[WHomePage.Accountcombobox.currentText()]
         SaveData()
         RefreshData()
+        WHomePage.clearmylabel()
         WHomePage.Refresh()
         WHomePage.clear()
         WHomePage.refreshtable()
@@ -373,6 +422,18 @@ def CheckToDelete():
         WHomePage.show()
     else:
         QMessageBox.information(None,'delete','Delete Fail,Please check the Account name.')
+def Signout():
+    global Wlogin,WHomePage
+    WHomePage.hide()
+    WHomePage.clearmylabel()
+    WHomePage.clear()
+    Wlogin.clear()
+    Wlogin.show()
+def CopyAccount():
+    pc.copy(data[WHomePage.Accountcombobox.currentText()]['Account'])
+def CopyKey():
+    pc.copy(data[WHomePage.Accountcombobox.currentText()]['Key'])
+
 #----------listener-------------#
 def start():
     #- login page -#
@@ -388,6 +449,10 @@ def start():
     WHomePage.ADDbutton.clicked.connect(HomeToAdd)
     WHomePage.Accountcomboxbutton.clicked.connect(SelectAccount)
     WHomePage.Deletebutton.clicked.connect(DeleteAccount)
+    WHomePage.Signoutbutton.clicked.connect(Signout)
+    WHomePage.AccountCopybutton.clicked.connect(CopyAccount)
+    WHomePage.KeyCopybutton.clicked.connect(CopyKey)
+    # WHomePage.Searchbutton.clicked.connect(SearchAccount)
     #- Add Page -#
     WAddPage.returnbutton.clicked.connect(AddToHome)
     WAddPage.SaveAccountButton.clicked.connect(AddPageSave)
