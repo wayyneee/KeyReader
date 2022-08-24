@@ -7,6 +7,9 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import pyperclip as pc
 import qrcode
+from PIL import ImageQt
+
+
 
 #------------TAB--------------#
 class LoginPage(QMainWindow):
@@ -366,6 +369,24 @@ class DeletePage(QMainWindow):
         #計算中點並移動
         self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
 
+class QRcodePage(QWidget):
+    def __init__(self):
+        super().__init__()
+        self.initUI()
+
+    def initUI(self):
+        self.setWindowTitle('my window')
+        self.setGeometry(50, 50, 200, 150)
+
+        layout = QVBoxLayout()
+        self.setLayout(layout)
+
+        self.mylabel = QLabel('this is an image', self)
+        layout.addWidget(self.mylabel)
+    def showImage(self,img):
+        self.myqimage = img
+        self.mylabel.setPixmap(QPixmap.fromImage(self.myqimage))
+
 #-----------function-----------#
 def encode(data):
     for item in data:
@@ -549,14 +570,20 @@ def CopyAccountByQRcode():
         qr.add_data(data[WHomePage.Accountcombobox.currentText()]['Account'])
         qr.make()
         img = qr.make_image()
-        img.show()
+        img = ImageQt.ImageQt(img)
+        WshowQRcode.showImage(img)
+        WshowQRcode.show()
+
+        
 def CopyKeyByQRcode():
     if WHomePage.AccountList!=[]:
         qr = qrcode.QRCode()
         qr.add_data(data[WHomePage.Accountcombobox.currentText()]['Key'])
         qr.make()
         img = qr.make_image()
-        img.show()
+        img = ImageQt.ImageQt(img)
+        WshowQRcode.showImage(img)
+        WshowQRcode.show()
 #----------listener-------------#
 def start():
     #- login page -#
@@ -596,6 +623,7 @@ WErrorPage = ErrorPage()
 WRegisterPage = RegisterPage()
 WAddPage = AddPage()
 WDeletePage = DeletePage()
+WshowQRcode = QRcodePage()
 
 start()
 sys.exit(app.exec_())
