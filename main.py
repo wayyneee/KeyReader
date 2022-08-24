@@ -543,6 +543,20 @@ def RefreshAccountList():
     WHomePage.clearSelectbox()
     WHomePage.clearmylabel()
     WHomePage.Refresh()
+def CopyAccountByQRcode():
+    if WHomePage.AccountList!=[]:
+        qr = qrcode.QRCode()
+        qr.add_data(data[WHomePage.Accountcombobox.currentText()]['Account'])
+        qr.make()
+        img = qr.make_image()
+        img.show()
+def CopyKeyByQRcode():
+    if WHomePage.AccountList!=[]:
+        qr = qrcode.QRCode()
+        qr.add_data(data[WHomePage.Accountcombobox.currentText()]['Key'])
+        qr.make()
+        img = qr.make_image()
+        img.show()
 #----------listener-------------#
 def start():
     #- login page -#
@@ -563,6 +577,8 @@ def start():
     WHomePage.KeyCopybutton.clicked.connect(CopyKey)
     WHomePage.Searchbutton.clicked.connect(SearchAccount)
     WHomePage.RefreshAccountlistbutton.clicked.connect(RefreshAccountList)
+    WHomePage.AccountCopyQRcodebutton.clicked.connect(CopyAccountByQRcode)
+    WHomePage.KeyCopyQRcodebutton.clicked.connect(CopyKeyByQRcode)
     #- Add Page -#
     WAddPage.returnbutton.clicked.connect(AddToHome)
     WAddPage.SaveAccountButton.clicked.connect(AddPageSave)
