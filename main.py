@@ -1,8 +1,4 @@
-from ast import keyword
-from multiprocessing.connection import wait
 import sys,os
-from turtle import goto
-from PyQt5.QtGui import QFont
 import time
 import pickle
 from datetime import datetime
@@ -10,6 +6,7 @@ from PyQt5.QtGui import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtCore import *
 import pyperclip as pc
+import qrcode
 
 #------------TAB--------------#
 class LoginPage(QMainWindow):
@@ -19,6 +16,7 @@ class LoginPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Login')
         self.setGeometry(600, 300, 250, 210)
+        self.center()
         #------------------ enter program key --------------------------#
         self.programkeylabel = QLabel('ProgramKey:', self)
         self.programkeylabel.move(25, 10)
@@ -40,6 +38,13 @@ class LoginPage(QMainWindow):
         #------------------- register button --------------------------#
         self.registerbutton = QPushButton('Register',self)
         self.registerbutton.move(20, 160)
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
     def clear(self):
         self.programkeyedit.clear()
         self.Accountedit.clear()
@@ -52,6 +57,7 @@ class ErrorPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('RememberKey')
         self.setGeometry(600, 300, 250, 150)
+        self.center()
         self.relogin = QPushButton('retry',self)
         self.relogin.move(75,80)
     def wait(self):
@@ -67,6 +73,13 @@ class ErrorPage(QMainWindow):
             if i <9:
                 self.Errorlabel.clear()
         self.relogin.show()
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
     def clear(self):
         self.Errorlabel.clear()
 
@@ -77,6 +90,7 @@ class RegisterPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('Register')
         self.setGeometry(600, 300, 258, 150)
+        self.center()
         #-------------------Set Account ----------------------#
         self.SetAccountlabel = QLabel('Set Account:', self)
         self.SetAccountlabel.move(25, 10)
@@ -92,7 +106,14 @@ class RegisterPage(QMainWindow):
         self.registerbutton.move(130, 110)
         #--------------------relogin -----------------------------#
         self.relogin = QPushButton('return',self)
-        self.relogin.move(10,110)        
+        self.relogin.move(10,110)  
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)      
     def clear(self):
         self.SetAccountedit.clear()
         self.SetPrivateKeyedit.clear()
@@ -105,6 +126,7 @@ class HomePage(QMainWindow):
         self.keyword = ''
         self.setWindowTitle('RememberKey')
         self.setGeometry(500, 200, 500, 500)
+        self.center()
         #---------add button------------------#
         self.ADDbutton = QPushButton('Add',self)
         self.ADDbutton.move(380,80)
@@ -135,12 +157,18 @@ class HomePage(QMainWindow):
         #------- AccountCopy button --------#
         self.AccountCopybutton = QPushButton('Copy',self)
         self.AccountCopybutton.move(300,200)
+        #------- AccountCopyQRcode button --------#
+        self.AccountCopyQRcodebutton = QPushButton('QRcode',self)
+        self.AccountCopyQRcodebutton.move(390,200)
         #------- KeyText label ---------------------#
         self.KeyTextlabel = QLabel('Key :',self)
         self.KeyTextlabel.move(30,230)
         #------- KeyCopy button---------------------#
         self.KeyCopybutton = QPushButton('Copy',self)
         self.KeyCopybutton.move(300,230)
+        #-------KeyCopy QRcode button----------------#
+        self.KeyCopyQRcodebutton = QPushButton('QRcode',self)
+        self.KeyCopyQRcodebutton.move(390,230)        
         #------- NoteText label --------------------#
         self.NoteTextlabel = QLabel('Note :',self)
         self.NoteTextlabel.move(30,260)
@@ -247,7 +275,13 @@ class HomePage(QMainWindow):
                 if item !='ProgramAccount' and self.keyword in item :
                     AccountList.append(item)
             return AccountList  
-
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
 class AddPage(QMainWindow):
     def __init__(self):
         super().__init__()
@@ -255,6 +289,7 @@ class AddPage(QMainWindow):
     def initUI(self):
         self.setWindowTitle('ADD Account')
         self.setGeometry(500, 200, 350, 500)
+        self.center()
         #------- Account Name Label ----------#
         self.AccountNamelabel = QLabel('Account Name:', self)
         self.AccountNamelabel.move(27, 10)
@@ -285,6 +320,13 @@ class AddPage(QMainWindow):
         #------ return button ----------------------#
         self.returnbutton = QPushButton('Return', self)
         self.returnbutton.move(27,460) 
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
     def clear(self):
         self.AccountNameedit.clear()
         self.AddAccountedit.clear()
@@ -302,7 +344,8 @@ class DeletePage(QMainWindow):
         self.OKbutton = QPushButton('OK',self)
         self.OKbutton.move(40,160) 
         self.returnbutton = QPushButton('return',self)
-        self.returnbutton.move(140,160)       
+        self.returnbutton.move(140,160)  
+        self.center()     
     def refreshDeletePage(self):
         stri = 'If you want to delete account 「 '+ WHomePage.Accountcombobox.currentText()+' 」, please enter theaccount name again.'
         self.deleteAccountlabel = QLabel(stri,self)
@@ -315,6 +358,13 @@ class DeletePage(QMainWindow):
     def clear(self):
         self.deleteAccountlabel.clear()
         self.deleteedit.clear()
+    def center(self):
+        #計算螢幕長和寬
+        screen=QDesktopWidget().screenGeometry()
+        #gui介面長和寬
+        size=self.geometry()
+        #計算中點並移動
+        self.move((screen.width()-size.width())/2,(screen.height()-size.height())/2)
 
 #-----------function-----------#
 def encode(data):
