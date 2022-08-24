@@ -475,9 +475,11 @@ def Signout():
     Wlogin.clear()
     Wlogin.show()
 def CopyAccount():
-    pc.copy(data[WHomePage.Accountcombobox.currentText()]['Account'])
+    if WHomePage.AccountList!=[]:
+        pc.copy(data[WHomePage.Accountcombobox.currentText()]['Account'])
 def CopyKey():
-    pc.copy(data[WHomePage.Accountcombobox.currentText()]['Key'])
+    if WHomePage.AccountList!=[]:
+        pc.copy(data[WHomePage.Accountcombobox.currentText()]['Key'])
 def SearchAccount():
     global WHomePage
     WHomePage.keyword =  WHomePage.Searchedit.text()
