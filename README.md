@@ -15,7 +15,7 @@
 * Click button to copy your Account or Key to scrapbook.
 * Using QRcode to copy your Account or Key to your phone.
 
-# What you can do easily to make it more usefully.
+# What you can do easily to make it more usefully?
 * In encode(data) and decode(data) function,you can make your own rule to encode data.
   - data is a dictionary
 * In setting you can setup your own program key.
