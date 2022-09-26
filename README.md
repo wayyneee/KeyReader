@@ -3,7 +3,7 @@
 ＃ Goal
 * To help us record account and Key easily,and encode our data to protect it.
 
-＃ Usage
+＃ Instructions
 * pip install model then run main.py with python.
 
 # Function of the program
