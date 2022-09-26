@@ -20,6 +20,7 @@
 * In setting you can setup your own program key.
   - default is ' programkey = datetime.now().strftime("%Y%m%d") '
 * If you are using Mac, please change the AppPath absolute path in setting.
+* You can using pyinstaller to packager program.
 
 
   
