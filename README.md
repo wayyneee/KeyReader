@@ -8,6 +8,7 @@
 
 # Function of the program
 
+* Using pyqt5 to make user interface.
 * Setting Your Own account in the register page.
 * After register an account, it will create a accountname.json data.(though it has been encoded,but still protect it as well.)
 * ADD,Delete,KeyWord Search Your Account and Key.
