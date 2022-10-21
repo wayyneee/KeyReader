@@ -24,8 +24,6 @@
 * You can using pyinstaller to packager program.
 
 
-Leo test
-
 
   
 
